@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heartbleed &amp; Open-Source Security | Rahama Much</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --badge-bg: #e2e8f0;
+      --danger: #b91c1c;
+      --danger-bg: #fee2e2;
+      --safe: #15803d;
+      --safe-bg: #dcfce7;
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #2dd4bf;
+      --accent-soft: #134e4a;
+      --badge-bg: #334155;
+      --danger: #f87171;
+      --danger-bg: #450a0a;
+      --safe: #4ade80;
+      --safe-bg: #052e16;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    body.dark button.primary {
+      color: #0f172a;
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    header.hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      margin: 0.25rem 0;
+    }
+
+    .author {
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      background: var(--badge-bg);
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .shield-icon {
+      width: 72px;
+      height: 72px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    section.card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin-top: 1.1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    p {
+      margin-bottom: 0.75rem;
+    }
+
+    ul, ol {
+      margin-left: 1.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    .callout {
+      background: var(--bg);
+      border-left: 4px solid var(--accent);
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+      font-weight: 500;
+    }
+
+    .badge-attack {
+      background: var(--danger-bg);
+      color: var(--danger);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .badge-fix {
+      background: var(--safe-bg);
+      color: var(--safe);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .diagram-box {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin: 1rem 0 0.5rem;
+      text-align: center;
+    }
+
+    .caption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .walkthrough-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      background: var(--bg);
+    }
+
+    .step-display {
+      padding: 0.85rem;
+      border-radius: 6px;
+      margin: 0.75rem 0;
+      font-weight: 500;
+    }
+
+    .step-attack {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .step-defense {
+      background: var(--safe-bg);
+      color: var(--safe);
+      border: 1px solid var(--safe);
+    }
+
+    a {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-links">
+      <a href="#intro">Intro</a>
+      <a href="#ethics">Ethics</a>
+      <a href="#attack">Attack</a>
+      <a href="#protection">Protection</a>
+      <a href="#security-plus">Security+</a>
+      <a href="#sources">Sources</a>
+    </div>
+    <button id="themeToggle" onclick="toggleTheme()">Dark / Light</button>
+  </nav>
+
+  <div class="container">
+    <header class="hero">
+      <div>
+        <div class="subtitle">Cybersecurity A | Student Project</div>
+        <h1>Heartbleed &amp; Open-Source Security</h1>
+        <div class="author">By Rahama Much</div>
+        <div class="tags">
+          <span class="tag">Ethics topic: Responsible disclosure</span>
+          <span class="tag">Attack topic: Heartbleed (Buffer over-read)</span>
+          <span class="tag">Security+ objective: 2.3 &amp; 2.5</span>
+          <span class="tag">Control type: Corrective &amp; preventive</span>
+        </div>
+      </div>
+      <div class="shield-icon" aria-hidden="true">&#10003;</div>
+    </header>
+
+    <section id="intro" class="card">
+      <h2>Introduction</h2>
+      <p>
+        This site covers the <strong>Heartbleed vulnerability (CVE-2014-0160)</strong> and the ethics of <strong>responsible vulnerability disclosure</strong>. Heartbleed was a critical flaw in the OpenSSL encryption library that allowed attackers to secretly read private server memory across millions of websites. Both topics matter to everyday students, families, and businesses because online banking, email, and logins depend on encrypted connections. When critical software has unpatched flaws or disclosures are mishandled, everyone's personal data is put at risk.
+      </p>
+      <div class="callout">
+        <strong>Key idea in one sentence:</strong> A single missing bounds check in widely used encryption software exposed millions of users' private data, showing why timely patching, key replacement, and ethical disclosure are essential to internet safety.
+      </div>
+    </section>
+
+    <section id="ethics" class="card">
+      <h2>The Ethics</h2>
+      <p><strong>Ethics topic:</strong> Responsible Disclosure &amp; Open-Source Accountability</p>
+      <p>
+        <strong>The ethical question:</strong> When a researcher finds a severe security bug in free, widely used software, should they report it privately so developers can build a fix first, or announce it immediately so users know they are at risk?
+      </p>
+
+      <h3>Who is helped and who is harmed?</h3>
+      <ul>
+        <li><strong>Who is helped:</strong> Everyday internet users and businesses are helped when a patch is prepared before public release, preventing mass exploitation before a fix exists.</li>
+        <li><strong>Who is harmed:</strong> Users remain exposed during any disclosure delay if attackers already discovered the bug silently, or if maintainers take too long to release an update.</li>
+        <li><strong>Other people or groups affected:</strong> Volunteer open-source developers, Certificate Authorities, and public agencies that depend on OpenSSL.</li>
+      </ul>
+
+      <h3>What the law or a professional code says</h3>
+      <p>
+        The <strong>ACM Code of Ethics</strong> (Section 1.2: Avoid Harm) states that computing professionals must prevent negative consequences and alert stakeholders to system risks. Likewise, the <strong>(ISC)&sup2; Code of Ethics</strong> requires professionals to protect society, the common good, and critical infrastructure. Coordinated disclosure follows both codes by giving maintainers a short, private window to build a fix before warning the public.
+      </p>
+
+      <h3>Real-world example</h3>
+      <p>
+        In April 2014, researchers at Google Security and Codenomicon independently discovered Heartbleed and privately alerted the OpenSSL team before publicly disclosing the bug on April 7, 2014, alongside the patched OpenSSL 1.0.1g release.
+      </p>
+
+      <h3>My position</h3>
+      <p>
+        Researchers should practice coordinated disclosure by giving maintainers a strict, limited window to create a patch before going public. First, releasing exploit details without a patch hands attackers a weapon before defenders have a shield. Second, a brief private window ensures a tested update is ready the moment the public is warned.
+      </p>
+
+      <h3>The other side</h3>
+      <p>
