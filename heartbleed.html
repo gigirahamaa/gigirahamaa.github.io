@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heartbleed &amp; Open-Source Security | Rahama</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --red-bg: #fef2f2;
+      --red-border: #ef4444;
+      --green-bg: #f0fdf4;
+      --green-border: #22c55e;
+    }
+    body.dark {
+      --bg: #0b0f19;
+      --card: #111827;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #1e293b;
+      --accent: #38bdf8;
+      --red-bg: rgba(239, 68, 68, 0.12);
+      --red-border: #ef4444;
+      --green-bg: rgba(34, 197, 94, 0.12);
+      --green-border: #22c55e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      transition: background 0.2s, color 0.2s;
+    }
+    nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav .links a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      margin-right: 16px;
+      font-size: 0.95rem;
+    }
+    nav .links a:hover { color: var(--accent); }
+    button {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    main { max-width: 880px; margin: 32px auto; padding: 0 20px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .eyebrow {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    h1 { font-size: 2rem; margin-bottom: 6px; }
+    h2 { font-size: 1.45rem; margin-bottom: 12px; }
+    h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    p { margin-bottom: 14px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .tag {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .callout {
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: 0 8px 8px 0;
+      margin-top: 12px;
+      font-weight: 500;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin: 14px 0;
+    }
+    .box-red {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .box-green {
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    ul { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 8px; }
+    figure {
+      margin: 18px 0;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      text-align: center;
+    }
+    figure img { max-width: 100%; height: auto; border-radius: 8px; }
+    figcaption { font-size: 0.9rem; color: var(--muted); margin-top: 10px; }
+    .walkthrough-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      background: var(--bg);
+      margin-top: 14px;
+    }
+    .quiz-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+      background: var(--bg);
+    }
+    .quiz-item label { display: block; margin: 6px 0; cursor: pointer; }
+    .result-box {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="links">
+      <a href="#intro">Intro</a>
+      <a href="#ethics">Ethics</a>
+      <a href="#attack">Attack</a>
+      <a href="#protection">Protection</a>
+      <a href="#securityplus">Security+</a>
+      <a href="#sources">Sources</a>
+    </div>
+    <button class="secondary" onclick="document.body.classList.toggle('dark')">Dark / Light</button>
+  </nav>
+
+  <main>
+    <section class="card">
+      <div class="eyebrow">Cybersecurity A | Student Project</div>
+      <h1>Heartbleed &amp; Open-Source Security</h1>
+      <p>By Rahama</p>
+      <div class="tags">
+        <span class="tag">Ethics topic: Responsible disclosure</span>
+        <span class="tag">Attack topic: Heartbleed (Buffer over-read)</span>
+        <span class="tag">Security+ objective: 2.3 &amp; 2.5</span>
+        <span class="tag">Control type: Corrective &amp; preventive</span>
+      </div>
+    </section>
+
+    <section class="card" id="intro">
+      <h2>Introduction</h2>
+      <p>
+        This site covers the <strong>Heartbleed vulnerability (CVE-2014-0160)</strong> and the ethics of <strong>responsible vulnerability disclosure</strong>. Heartbleed was a critical flaw in the OpenSSL encryption library that allowed attackers to secretly read private server memory across millions of websites.
+      </p>
+      <div class="callout">
+        Key idea in one sentence: A single missing bounds check in widely used encryption software exposed private internet data, showing why responsible disclosure and timely patching are essential.
+      </div>
+    </section>
+
+    <section class="card" id="ethics">
+      <h2>Ethics: Responsible Vulnerability Disclosure</h2>
+      <p><strong>Ethical Question:</strong> Should security researchers privately notify software maintainers and give them time to release a patch before publicly revealing a critical flaw, or publish exploit details immediately?</p>
+      <ul>
+        <li><strong>Who is helped and harmed:</strong> Coordinated disclosure helps everyday users, hospitals, and businesses by allowing patches before mass exploitation. Immediate public leaks help malicious hackers steal data before defenses exist, while hiding flaws indefinitely leaves users unknowingly vulnerable.</li>
+        <li><strong>Law, Policy, and Professional Code:</strong> Guided by the <em>Computer Fraud and Abuse Act (CFAA)</em> (which prohibits unauthorized access) and the <em>ISC2 Code of Ethics</em> (requiring professionals to protect society and act responsibly).</li>
+        <li><strong>My Position:</strong> Researchers should follow coordinated responsible disclosure for two main reasons: (1) it prevents widespread data theft while a fix is built, and (2) setting a clear 90-day disclosure deadline pressures vendors to actually fix the bug instead of ignoring it.</li>
+        <li><strong>Strongest Counterargument &amp; Answer:</strong> Critics argue that waiting to publish leaves the public in the dark if attackers already found the bug privately. However, publishing exploit code before a patch exists guarantees immediate, automated attacks against unpatched systems, causing far greater harm.</li>
+        <li><strong>Real-World Case (April 2014):</strong> Security researchers at Google and Codenomicon discovered Heartbleed in April 2014 and coordinated privately with the OpenSSL team so version 1.0.1g could be released alongside the public announcement on April 7, 2014.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="attack">
+      <h2>How the Heartbleed Attack Works</h2>
+      <p>
+        OpenSSL's TLS <em>Heartbeat</em> extension kept encrypted connections alive by echoing back a short message sent by a user. Because OpenSSL versions 1.0.1 through 1.0.1f never checked whether the sender's claimed message length matched the actual data sent, an attacker could send a 1-byte payload while claiming it was 65,535 bytes—tricking the server into returning up to <strong>64 KB of active server memory</strong> (usernames, passwords, session tokens, and private SSL keys).
+      </p>
+      <p><strong>Real-World Incident (April 2014):</strong> Following the April 2014 disclosure, attackers exploited unpatched servers—including the Canada Revenue Agency, where roughly 900 taxpayers' Social Insurance Numbers were stolen before systems were patched.</p>
+
+      <figure>
+        <img src="attack-diagram.png" alt="Diagram showing how the Heartbleed attack sends a fake 64 KB Heartbeat request to leak memory and how the OpenSSL 1.0.1g bounds check blocks it." />
+        <figcaption>Diagram: Heartbleed memory over-read attack flow (red) vs. OpenSSL 1.0.1g bounds-check protection (green).</figcaption>
+      </figure>
+
+      <div class="walkthrough-box">
+        <h3>Interactive Attack &amp; Defense Walkthrough</h3>
+        <p id="step-text"><strong>Step 1 (Attack):</strong> Client sends a Heartbeat packet with a 1-byte payload but claims the payload length is 64 KB (65,535 bytes).</p>
+        <button onclick="nextStep()">Next Step &rarr;</button>
+      </div>
+    </section>
+
+    <section class="card" id="protection">
+      <h2>How Protection Stops It</h2>
+      <div class="grid-2">
+        <div class="box-red">
+          <h3>Vulnerable Behavior (OpenSSL 1.0.1–1.0.1f)</h3>
+          <p>Server allocates memory based on the sender's untrusted length number and copies 64 KB of adjacent RAM back to the attacker without bounds checking.</p>
+        </div>
+        <div class="box-green">
